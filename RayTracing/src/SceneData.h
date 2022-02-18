@@ -63,9 +63,9 @@ public:
 	~SceneData() {};
 
 	// Camera
-	CameraData camera;
+	CameraData camera = CameraData();
 	// Light
-	LightData ambient_light;
+	LightData ambient_light = LightData();
 	std::vector<LightData> lights;
 	// Pigments
 	std::vector<SolidPigmentData> solid_pigments;

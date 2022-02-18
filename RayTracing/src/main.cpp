@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include<sstream>
 #include <iostream>
 #include <fstream>
 #include <assert.h>
@@ -13,9 +14,24 @@
 #include "Renderer.h"
 #include "SceneData.h"
 
-void InputInterface(std::string& input_file, std::string& output_file) {
-	std::cout << "Insert input and output files (i.e. 'in.txt out.ppm')" << std::endl;
-	std::cin >> input_file >> output_file;
+void InputInterface(std::string& input_file, std::string& output_file, int& WIDTH, int& HEIGHT) {
+	std::cout << "Insira os nomes dos arquivos de entrada e saída ( i.e. 'in.txt out.ppm' )" << std::endl;
+	std::cout << "> Opcionalmente pode também ser inserido a largura e altura da imagem ( i.e. 'in.txt out.ppm 1000 1000' )" << std::endl;
+	std::string input;
+	std::getline(std::cin, input);
+	std::istringstream ss(input);
+	int count = 0;
+	while (std::getline(ss, input, ' ')) {
+		if (count == 0)
+			input_file = input;
+		if (count == 1)
+			output_file = input;
+		if (count == 2)
+			WIDTH = std::stoi(input);
+		if (count == 3)
+			HEIGHT = std::stoi(input);
+		++count;
+	}
 }
 
 SceneData GetSceneData(SceneData& scene, const std::string input_file) {
@@ -148,6 +164,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 int main() {
 	// Get input data
 	std::string input_file, output_file;
+	int WIDTH = 800, HEIGHT = 600;
 	//InputInterface(input_file, output_file);
 	input_file = "input.txt";
 	output_file = "out.ppm";
@@ -160,13 +177,34 @@ int main() {
 	std::cout << scene.spheres[1].finish_id;
 	std::cout << scene.texmap_pigments[0].file_name;
 	
-	std::unique_ptr<Window> window = std::make_unique<Window>(WindowConfigs("file_name", 1000, 1000));
+	// Set-up Window
+	std::unique_ptr<Window> window = std::make_unique<Window>(WindowConfigs("file_name", WIDTH, HEIGHT));
 
+	// Set-up Renderer
 	std::unique_ptr<Renderer> renderer = std::make_unique<Renderer>();
 	renderer->Init();
+	renderer->SetClearColor({ 1.0f, 0.0f, 1.0f, 1.0f });
+
+	// Set-up Camera
+	std::shared_ptr<Camera> camera = std::make_shared<Camera>(
+		scene.camera.pos, 
+		scene.camera.target, 
+		scene.camera.up_vector, 
+		scene.camera.fov,
+		WIDTH,
+		HEIGHT);
 
 	while (true) {
+		// Clear scene
+		renderer->Clear();
 
+		// Render all objects
+		renderer->BeginScene(*camera);
+
+		renderer->EndScene();
+
+		// Poll events and Swap Buffers
+		window->OnUpdate();
 	}
 
 	return 0;

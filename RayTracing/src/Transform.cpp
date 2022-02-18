@@ -24,7 +24,6 @@ void Transform::set_yaw_pitch_roll(const glm::vec3& yaw_pitch_roll)
     }
     // Quaternion = (-pitch, -yaw, roll??)
     quat_orientation_ = glm::quat(glm::vec3(-yaw_pitch_roll_.x, -yaw_pitch_roll_.y, yaw_pitch_roll_.z));
-    has_changed_ = true;
 }
 
 void Transform::add_yaw(const float yaw)
@@ -35,7 +34,6 @@ void Transform::add_yaw(const float yaw)
     }
     // Quaternion = (-pitch, -yaw, roll??)
     quat_orientation_ = glm::quat(glm::vec3(-yaw_pitch_roll_.y, -yaw_pitch_roll_.x, yaw_pitch_roll_.z));
-    has_changed_ = true;
 }
 
 void Transform::add_pitch(const float pitch)
@@ -46,7 +44,6 @@ void Transform::add_pitch(const float pitch)
     }
     // Quaternion = (-pitch, -yaw, roll??)
     quat_orientation_ = glm::quat(glm::vec3(-yaw_pitch_roll_.y, -yaw_pitch_roll_.x, yaw_pitch_roll_.z));
-    has_changed_ = true;
 }
 
 void Transform::look_at(const glm::vec3& target)

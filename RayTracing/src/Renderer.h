@@ -26,6 +26,7 @@ public:
 
 	void DrawIndexed(const std::shared_ptr<OpenGLVertexArray>& vertex_array);
 	void CreateCubeMap(uint32_t* cubemap_texture, std::string* faces_cubemap);
+
 private:
 	struct SceneData {
 		glm::mat4 view_projection_matrix;
