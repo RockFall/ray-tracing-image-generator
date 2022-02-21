@@ -1287,6 +1287,9 @@
     <ClInclude Include="src\OpenGLContext.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\RayTracing.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="src\Renderer.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -1322,7 +1325,13 @@
     <ClCompile Include="src\OpenGLContext.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\RayTracing.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\Renderer.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SceneData.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Shader.cpp">

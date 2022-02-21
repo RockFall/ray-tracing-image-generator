@@ -13,6 +13,9 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "SceneData.h"
+#include "Texture2D.h"
+
+
 
 void InputInterface(std::string& input_file, std::string& output_file, int& WIDTH, int& HEIGHT) {
 	std::cout << "Insira os nomes dos arquivos de entrada e saída ( i.e. 'in.txt out.ppm' )" << std::endl;
@@ -52,7 +55,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 	file >> x >> y >> z;
 	camera.target = { x, y, z };
 	file >> x >> y >> z;
-	camera.up_vector = { x, y, z };
+	camera.up_vector = glm::normalize(glm::vec3(x, y, z));
 	file >> aux_f;
 	camera.fov = aux_f;
 	scene.camera = camera;
@@ -75,6 +78,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 
 	// Pigments data
 	file >> count;
+	int pigm_index = 0;
 	for (int i = 0; i < count; ++i) {
 		file >> type;
 		if (type == "solid") {
@@ -82,16 +86,18 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 			file >> x >> y >> z;
 			solid.rgb = { x, y, z };
 			scene.solid_pigments.push_back(solid);
+			scene.pigment_map[pigm_index] = { PigmentType::Solid, scene.solid_pigments.size() - 1 };
 		}
 		else if (type == "texmap") {
 			TexmapPigmentData texmap = TexmapPigmentData();
 			file >> aux;
-			texmap.file_name = aux;
+			texmap.texture = Texture2D(aux);
 			file >> x >> y >> z >> w;
 			texmap.tex_map_x = glm::vec4(x, y, z, w);
 			file >> x >> y >> z >> w;
 			texmap.tex_map_y = glm::vec4(x, y, z, w);
 			scene.texmap_pigments.push_back(texmap);
+			scene.pigment_map[pigm_index] = { PigmentType::Texmap, scene.texmap_pigments.size() - 1 };
 		}
 		else if (type == "checker") {
 			CheckerPigmentData checker = CheckerPigmentData();
@@ -102,6 +108,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 			file >> aux_f;
 			checker.size = aux_f;
 			scene.checker_pigments.push_back(checker);
+			scene.pigment_map[pigm_index] = { PigmentType::Checker, scene.checker_pigments.size() - 1 };
 		}
 		else {
 			std::cout << "Invalid Pigment type given: " << type << std::endl;
@@ -161,6 +168,32 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 	return scene;
 }
 
+void WriteFile(SceneData scene_data, std::string output_file_name, int WIDTH, int HEIGHT) {
+	std::ofstream file;
+	file.open(output_file_name, std::ios::out);
+	if (!file.is_open()) {
+		std::cout << "Could not open or create the file '" << output_file_name << "'" << std::endl;
+	}
+
+	file << "P3" << std::endl;
+	file << WIDTH << " " << HEIGHT << std::endl;
+	file << "255" << std::endl;
+
+	float screen_height = 2.0f * glm::tan(glm::radians(scene_data.camera.fov / 2)) * glm::l2Norm(scene_data.camera.target - scene_data.camera.pos);
+
+	glm::vec3 pixel_right_dir = () * ()
+
+	for (int i = 0; i < HEIGHT; i++)
+	{
+		for (int i = 0; i < WIDTH; i++)
+		{
+
+		}
+	}
+
+	file.close();
+}
+
 int main() {
 	// Get input data
 	std::string input_file, output_file;
@@ -194,6 +227,7 @@ int main() {
 		WIDTH,
 		HEIGHT);
 
+	/*
 	while (true) {
 		// Clear scene
 		renderer->Clear();
@@ -205,7 +239,9 @@ int main() {
 
 		// Poll events and Swap Buffers
 		window->OnUpdate();
-	}
+	}*/
+
+	WriteFile(scene, output_file, WIDTH, HEIGHT);
 
 	return 0;
 }

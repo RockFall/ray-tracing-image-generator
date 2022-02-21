@@ -10,11 +10,12 @@
 class Transform {
 public:
 	Transform() {}
-	Transform(glm::vec3 position, glm::vec3 size = glm::vec3(1.0f), glm::vec3 rotation = glm::vec3(0.0f)) 
+	Transform(glm::vec3 position, glm::vec3 size = glm::vec3(1.0f), glm::vec3 rotation = glm::vec3(0.0f))
 		: world_position_(position), world_scale_(size), yaw_pitch_roll_(rotation) {
 
 		quat_orientation_ = glm::quat(yaw_pitch_roll_);
 	}
+
 	~Transform() {}
 		
 	// Model matrix (translate, rotate and scale)
@@ -38,7 +39,7 @@ public:
 	void set_scale(const glm::vec3& scale) { world_scale_ = scale;}
 
 	// Turns the orientation to a given target position
-	void look_at(const glm::vec3& target);
+	void look_at(const glm::vec3& target, const glm::vec3& up_vec = glm::vec3(0.0f, 0.1f, 0.0f));
 
 	// Get directions (all Quaternion based)
 	glm::quat get_orientation() const;

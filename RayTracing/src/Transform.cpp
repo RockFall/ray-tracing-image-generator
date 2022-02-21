@@ -46,14 +46,14 @@ void Transform::add_pitch(const float pitch)
     quat_orientation_ = glm::quat(glm::vec3(-yaw_pitch_roll_.y, -yaw_pitch_roll_.x, yaw_pitch_roll_.z));
 }
 
-void Transform::look_at(const glm::vec3& target)
+void Transform::look_at(const glm::vec3& target, const glm::vec3& up_vec)
 {
     yaw_pitch_roll_ = glm::vec3(0.0f);
 
     glm::vec3 direction = target - world_position_;
     direction = glm::normalize(direction);
 
-    quat_orientation_ = glm::quatLookAt(direction, glm::vec3(0.0f, 1.0f, 0.0f));
+    quat_orientation_ = glm::quatLookAt(direction, up_vec);
 }
 
 glm::quat Transform::get_orientation() const

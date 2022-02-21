@@ -14,8 +14,6 @@ Camera::Camera(const glm::vec3& position, const glm::vec3& target, const glm::ve
 	UpdateViewProjectionMatrix();
 }
 
-
-
 void Camera::UpdateProjectionMatrixOnly()
 {
 	projection_matrix_ = glm::perspective(	
