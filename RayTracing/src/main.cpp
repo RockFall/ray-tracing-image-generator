@@ -199,7 +199,7 @@ void WriteFile(SceneData scene_data, std::shared_ptr<Camera> camera, std::string
 	{
 		for (int w = 0; w < WIDTH; w++)
 		{
-			if (w > 400 && h > 120) {
+			if (w > 324 && h > 180) {
 				int a = 3;
 			}
 
@@ -222,7 +222,7 @@ int main() {
 	int WIDTH = 800, HEIGHT = 600;
 	int DEPTH = 4;
 	//InputInterface(input_file, output_file);
-	input_file = "test4.txt";
+	input_file = "test4.in";
 	output_file = "out.ppm";
 
 	SceneData scene = SceneData();

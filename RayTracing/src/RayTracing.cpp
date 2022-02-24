@@ -202,12 +202,16 @@ std::pair<float, bool> RayTracing::SphereIntersections(const SphereSurfaceData& 
 	float max_t = MAX_FLOAT;
 
 	if (end_pos[0] != MAX_FLOAT) {
+		// Then we have a limit pos
+		/*
 		if (ray_direction[0] < EPSILON) {
-			max_t = (end_pos[0] - ray_origin[0]);
+			max_t = glm::length(end_pos - ray_origin);
 		}
 		else {
 			max_t = (end_pos[0] - ray_origin[0]) / ray_direction[0];
-		}
+		}*/
+
+		max_t = glm::length(end_pos - ray_origin);
 	}
 
 	if (t1 > 0 && t1 < max_t) {
@@ -287,7 +291,7 @@ std::pair<float, glm::vec3> RayTracing::PolyhedronIntersections(const Polyhedron
 
 	if (t0 > EPSILON && t1 >= t0) {
 		normal = glm::normalize(t0_equation);
-		if (t1 < max_t) {
+		if (t0 < max_t) {
 			return std::make_pair(t0, normal);
 		}
 		else {
