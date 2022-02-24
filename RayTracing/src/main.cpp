@@ -14,6 +14,7 @@
 #include "Renderer.h"
 #include "SceneData.h"
 #include "Texture2D.h"
+#include "RayTracing.h"
 
 
 
@@ -70,8 +71,8 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 		light.rgb = { x, y, z };
 		file >> x >> y >> z;
 		light.const_mitigation = x;
-		light.dist_mitigation = z;
-		light.dist_sqr_mitigation = y;
+		light.dist_mitigation = y;
+		light.dist_sqr_mitigation = z;
 
 		scene.lights.push_back(light);
 	}
@@ -87,6 +88,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 			solid.rgb = { x, y, z };
 			scene.solid_pigments.push_back(solid);
 			scene.pigment_map[pigm_index] = { PigmentType::Solid, scene.solid_pigments.size() - 1 };
+			++pigm_index;
 		}
 		else if (type == "texmap") {
 			TexmapPigmentData texmap = TexmapPigmentData();
@@ -98,6 +100,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 			texmap.tex_map_y = glm::vec4(x, y, z, w);
 			scene.texmap_pigments.push_back(texmap);
 			scene.pigment_map[pigm_index] = { PigmentType::Texmap, scene.texmap_pigments.size() - 1 };
+			++pigm_index;
 		}
 		else if (type == "checker") {
 			CheckerPigmentData checker = CheckerPigmentData();
@@ -109,6 +112,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 			checker.size = aux_f;
 			scene.checker_pigments.push_back(checker);
 			scene.pigment_map[pigm_index] = { PigmentType::Checker, scene.checker_pigments.size() - 1 };
+			++pigm_index;
 		}
 		else {
 			std::cout << "Invalid Pigment type given: " << type << std::endl;
@@ -129,6 +133,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 		finish.kr = x;
 		finish.kt = y;
 		finish.ior = z;
+		scene.finishes.push_back(finish);
 	}
 
 	// Surfaces Data
@@ -168,7 +173,7 @@ SceneData GetSceneData(SceneData& scene, const std::string input_file) {
 	return scene;
 }
 
-void WriteFile(SceneData scene_data, std::string output_file_name, int WIDTH, int HEIGHT) {
+void WriteFile(SceneData scene_data, std::shared_ptr<Camera> camera, std::string output_file_name, int WIDTH, int HEIGHT, int depth) {
 	std::ofstream file;
 	file.open(output_file_name, std::ios::out);
 	if (!file.is_open()) {
@@ -179,15 +184,32 @@ void WriteFile(SceneData scene_data, std::string output_file_name, int WIDTH, in
 	file << WIDTH << " " << HEIGHT << std::endl;
 	file << "255" << std::endl;
 
-	float screen_height = 2.0f * glm::tan(glm::radians(scene_data.camera.fov / 2)) * glm::l2Norm(scene_data.camera.target - scene_data.camera.pos);
+	float screen_height = 2.0f * glm::tan(glm::radians(scene_data.camera.fov / 2.0f)) * glm::l2Norm(scene_data.camera.target - scene_data.camera.pos);
+	float screen_width = (screen_height * WIDTH) / HEIGHT;
+	
+	//glm::vec3 pixel_right_dir = () * (glm::normalize(glm::cross(camera->get_transform().get_forward_direction(), camera->get_transform().get_up_direction())));
+	glm::vec3 pixel_right_dir = ((screen_width) / WIDTH) * (camera->get_transform().get_right_direction());
+	glm::vec3 pixel_down_dir = (screen_height / HEIGHT) * (camera->get_transform().get_up_direction() * -1.0f);
+	
+	glm::vec3 top_left = camera->get_target() - (camera->get_transform().get_right_direction() *(screen_width/2.0f)) + (camera->get_transform().get_up_direction() * (screen_height /2.0f));
 
-	glm::vec3 pixel_right_dir = () * ()
+	RayTracing ray_tracer = RayTracing();
 
-	for (int i = 0; i < HEIGHT; i++)
+	for (int h = 0; h < HEIGHT; h++)
 	{
-		for (int i = 0; i < WIDTH; i++)
+		for (int w = 0; w < WIDTH; w++)
 		{
+			if (w > 400 && h > 120) {
+				int a = 3;
+			}
 
+			glm::vec3 pos = glm::vec3(top_left);
+			pos += float(w) * pixel_right_dir;
+			pos += float(h) * pixel_down_dir;
+			glm::vec3 camera_to_pixel_dir = glm::normalize(pos - camera->get_transform().get_position());
+
+			glm::vec3 pixel_color = ray_tracer.CalculateRay(scene_data, camera->get_transform().get_position(), camera_to_pixel_dir, depth);
+			file << int(pixel_color.x * 255) << " " << int(pixel_color.y * 255) << " " << int(pixel_color.z * 255) << std::endl;
 		}
 	}
 
@@ -198,17 +220,17 @@ int main() {
 	// Get input data
 	std::string input_file, output_file;
 	int WIDTH = 800, HEIGHT = 600;
+	int DEPTH = 4;
 	//InputInterface(input_file, output_file);
-	input_file = "input.txt";
+	input_file = "test4.txt";
 	output_file = "out.ppm";
 
 	SceneData scene = SceneData();
 	scene = GetSceneData(scene, input_file);
 	
 	// Must be 402rainbow1.ppm
-	std::cout << scene.checker_pigments[0].size;
-	std::cout << scene.spheres[1].finish_id;
-	std::cout << scene.texmap_pigments[0].file_name;
+	
+	//std::cout << scene.texmap_pigments[0].file_name;
 	
 	// Set-up Window
 	std::unique_ptr<Window> window = std::make_unique<Window>(WindowConfigs("file_name", WIDTH, HEIGHT));
@@ -234,14 +256,14 @@ int main() {
 
 		// Render all objects
 		renderer->BeginScene(*camera);
-
+		renderer->DrawIndexed();
 		renderer->EndScene();
 
 		// Poll events and Swap Buffers
 		window->OnUpdate();
 	}*/
 
-	WriteFile(scene, output_file, WIDTH, HEIGHT);
+	WriteFile(scene, camera, output_file, WIDTH, HEIGHT, DEPTH);
 
 	return 0;
 }
