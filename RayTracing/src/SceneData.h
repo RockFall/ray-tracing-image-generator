@@ -74,6 +74,8 @@ struct PolyhedronSurfaceData {
 	std::vector<PolyhedronFaceData> faces;
 };
 
+
+
 class SceneData {
 public:
 	SceneData() {};
@@ -101,7 +103,6 @@ public:
 		return glm::vec2(glm::dot(texmap.tex_map_x, glm::vec4(coord_3d, 1.0f)), glm::dot(texmap.tex_map_y, glm::vec4(coord_3d, 1.0f)));
 	}
 
-
 	glm::vec3 calculate_color(const glm::vec3& pos, int pigment_id) const {
 		auto type_id = pigment_map.find(pigment_id)->second;
 
@@ -128,8 +129,10 @@ public:
 		case PigmentType::Texmap:
 		{
 			glm::vec2 coords = get_2d_texture_coord(pos, texmap_pigments[type_id.second]);
-			int i = (int)(coords.y * texmap_pigments[type_id.second].texture.get_height()) % texmap_pigments[type_id.second].texture.get_height();
-			int j = (int)(coords.x * texmap_pigments[type_id.second].texture.get_width()) % texmap_pigments[type_id.second].texture.get_width();
+			//int i = (int)(coords.y * texmap_pigments[type_id.second].texture.get_height()) % texmap_pigments[type_id.second].texture.get_height();
+			int i = mod(int(coords.y * texmap_pigments[type_id.second].texture.get_height()), texmap_pigments[type_id.second].texture.get_height());
+			//int j = (int)(coords.x * texmap_pigments[type_id.second].texture.get_width()) % texmap_pigments[type_id.second].texture.get_width();
+			int j = mod(int(coords.x * texmap_pigments[type_id.second].texture.get_width()), texmap_pigments[type_id.second].texture.get_width());
 			if (i < 0)
 				i += texmap_pigments[type_id.second].texture.get_height();
 			if (j < 0)
@@ -151,5 +154,15 @@ public:
 		}
 			break;
 		}
+	}
+
+	int mod(int a, int b) const
+	{
+		if (b < 0) //you can check for b == 0 separately and do what you want
+			return -mod(-a, -b);
+		int ret = a % b;
+		if (ret < 0)
+			ret += b;
+		return ret;
 	}
 };
